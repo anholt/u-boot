@@ -13,9 +13,14 @@
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARCH_CPU_INIT
 
+/* Use SoC timer for AArch32, but architected timer for AArch64 */
+#ifdef CONFIG_ARM64
+#define COUNTER_FREQUENCY 1000000
+#else
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	\
 	(&((struct bcm2835_timer_regs *)BCM2835_TIMER_PHYSADDR)->clo)
+#endif
 
 /*
  * 2835 is a SKU in a series for which the 2708 is the first or primary SoC,
@@ -35,7 +40,9 @@
 /* Memory layout */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
+#ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x00008000
+#endif
 #define CONFIG_SYS_UBOOT_BASE		CONFIG_SYS_TEXT_BASE
 /*
  * The board really has 256M. However, the VC (VideoCore co-processor) shares

@@ -19,12 +19,17 @@ config TARGET_RPI_3_32B
 	select CPU_V7
 	select ARMV7_LPAE
 
+config TARGET_RPI_3
+	bool "Raspberry Pi 3 64-bit build"
+	select ARM64
+
 endchoice
 
 config SYS_BOARD
 	default "rpi" if TARGET_RPI
 	default "rpi_2" if TARGET_RPI_2
 	default "rpi_3_32b" if TARGET_RPI_3_32B
+	default "rpi_3" if TARGET_RPI_3
 
 config SYS_VENDOR
 	default "raspberrypi"
@@ -36,5 +41,6 @@ config SYS_CONFIG_NAME
 	default "rpi" if TARGET_RPI
 	default "rpi_2" if TARGET_RPI_2
 	default "rpi_3_32b" if TARGET_RPI_3_32B
+	default "rpi_3" if TARGET_RPI_3
 
 endmenu
