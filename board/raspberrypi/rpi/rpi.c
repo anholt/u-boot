@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012-2013,2015 Stephen Warren
+ * (C) Copyright 2012-2016 Stephen Warren
  *
  * SPDX-License-Identifier:	GPL-2.0
  */
@@ -18,6 +18,7 @@
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
 #include <dm/platform_data/serial_pl01x.h>
+#include <dm/platform_data/serial_bcm283x_mu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -30,6 +31,7 @@ U_BOOT_DEVICE(bcm2835_gpios) = {
 	.platdata = &gpio_platdata,
 };
 
+#ifdef CONFIG_PL01X_SERIAL
 static const struct pl01x_serial_platdata serial_platdata = {
 #ifndef CONFIG_BCM2835
 	.base = 0x3f201000,
@@ -44,6 +46,19 @@ U_BOOT_DEVICE(bcm2835_serials) = {
 	.name = "serial_pl01x",
 	.platdata = &serial_platdata,
 };
+#else
+static const struct bcm283x_mu_serial_platdata serial_platdata = {
+	.base = 0x3f215040,
+	.clock = 250000000,
+	/* FIXME: Set to true once the FW programs the correct divider */
+	.skip_init = false,
+};
+
+U_BOOT_DEVICE(bcm2837_serials) = {
+	.name = "serial_bcm283x_mu",
+	.platdata = &serial_platdata,
+};
+#endif
 
 struct msg_get_arm_mem {
 	struct bcm2835_mbox_hdr hdr;
@@ -99,7 +114,9 @@ struct rpi_model {
 
 static const struct rpi_model rpi_model_unknown = {
 	"Unknown model",
-#ifdef CONFIG_BCM2836
+#if defined(CONFIG_BCM2837)
+	"bcm2837-rpi-other.dtb",
+#elif defined(CONFIG_BCM2836)
 	"bcm2836-rpi-other.dtb",
 #else
 	"bcm2835-rpi-other.dtb",
@@ -111,6 +128,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 	[0x4] = {
 		"2 Model B",
 		"bcm2836-rpi-2-b.dtb",
+		true,
+	},
+	[0x8] = {
+		"3 Model B",
+		"bcm2837-rpi-3-b.dtb",
 		true,
 	},
 	[0x9] = {
