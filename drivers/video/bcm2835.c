@@ -106,6 +106,12 @@ void lcd_ctrl_init(void *lcdbase)
 
 	gd->fb_base = bus_to_phys(
 		msg_setup->allocate_buffer.body.resp.fb_address);
+
+	/* Enable dcache for the frame buffer */
+        mmu_set_region_dcache_behaviour(gd->fb_base,
+		ALIGN(msg_setup->allocate_buffer.body.resp.fb_size, PAGE_SIZE),
+		DCACHE_WRITEBACK);
+	lcd_set_flush_dcache(1);
 }
 
 void lcd_enable(void)
